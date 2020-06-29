@@ -14,10 +14,9 @@ def calc_sql_time(sql):
 
     yield
 
-    print(
-        f'Продолжительность SQL-запроса {sql} - '
-        f'{time.monotonic() - timestamp:.3f} сек.'
-    )
+    if hasattr(thread_locals, 'sql_count'):
+        thread_locals.sql_count += 1
+        thread_locals.sql_total += time.monotonic() - timestamp
 
 
 def make_safe(s):
