@@ -1,3 +1,4 @@
+import json
 import time
 from threading import local
 
@@ -17,12 +18,15 @@ class RequestTimeMiddleware:
 
         response = self.get_response(request)
 
-        print(
-            f'Продолжительность запроса {request.path} - '
-            f'{time.monotonic() - timestamp:.3f} сек. '
-            f'Количество SQL-запросов - {thread_locals.sql_count}. '
-            f'Продолжительность SQL-запросов - {thread_locals.sql_total:.3f}.'
-        )
+        data = {
+            'path': request.path,
+            'request_total': round(time.monotonic() - timestamp, 3),
+            'sql_count': round(thread_locals.sql_count, 3),
+            'sql_total': round(thread_locals.sql_total, 3),
+        }
+
+        with open('request.log', 'a') as f:
+            f.write(json.dumps(data) + '\n')
 
         thread_locals.sql_total = 0
         thread_locals.sql_count = 0
