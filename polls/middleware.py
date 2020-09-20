@@ -1,4 +1,3 @@
-import json
 import time
 from threading import local
 
@@ -19,14 +18,16 @@ class RequestTimeMiddleware:
         response = self.get_response(request)
 
         data = {
+            'uuid': request.META.get('HTTP_UUID'),
+            'c_started': request.META.get('HTTP_C_STARTED'),
             'path': request.path,
             'request_total': round(time.monotonic() - timestamp, 3),
-            'sql_count': round(thread_locals.sql_count, 3),
+            'sql_count': thread_locals.sql_count,
             'sql_total': round(thread_locals.sql_total, 3),
         }
 
-        with open('request.log', 'a') as f:
-            f.write(json.dumps(data) + '\n')
+        for key, value in data.items():
+            response[key.capitalize().replace("_", "-")] = value
 
         thread_locals.sql_total = 0
         thread_locals.sql_count = 0
