@@ -6,6 +6,7 @@ thread_locals = local()
 
 
 class RequestTimeMiddleware:
+    """Middleware для логирования статистики в разрезе запросов"""
     def __init__(self, get_response):
         self.get_response = get_response
 

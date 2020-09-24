@@ -10,6 +10,8 @@ from polls.middleware import thread_locals
 
 @contextmanager
 def calc_sql_time(sql):
+    """Контекстный менеджер для вычисления характеристик SQL-запроса"""
+
     timestamp = time.monotonic()
 
     yield
@@ -20,10 +22,14 @@ def calc_sql_time(sql):
 
 
 def make_safe(s):
+    """Заменяет спец.символы в запросе"""
+
     return s.replace('*', '').replace('\\', '').replace('%', '')
 
 
 class CursorWrapper(DjangoCursorWrapper):
+    """Враппер с подключенным логированием"""
+
     def execute(self, sql, params=None):
         path = getattr(thread_locals, 'path', '')
         if path:
@@ -35,6 +41,8 @@ class CursorWrapper(DjangoCursorWrapper):
 
 
 class DatabaseWrapper(DjangoDatabaseWrapper):
+    """Враппер для кастомизации курсора"""
+
     def create_cursor(self, name=None):
         cursor = super().create_cursor(name)
         return CursorWrapper(cursor, self)
